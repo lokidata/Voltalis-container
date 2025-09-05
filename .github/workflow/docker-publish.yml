@@ -1,14 +1,16 @@
-name: Build and Publish Docker image
+
+name: Release and Publish Docker image
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - main
 
 jobs:
-  build-and-push:
+  release-and-publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
@@ -24,9 +26,26 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract release tag
+      - name: Get short SHA
         id: vars
-        run: echo "RELEASE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Get date
+        run: echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ env.SHORT_SHA }}
+          name: Build ${{ env.SHORT_SHA }}
+          body: |
+            Docker image built and published:
+            - `${{ secrets.DOCKERHUB_USERNAME }}/voltalis-bridge:${{ env.SHORT_SHA }}`
+            - `${{ secrets.DOCKERHUB_USERNAME }}/voltalis-bridge:latest`
+            Build date: ${{ env.BUILD_DATE }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -35,5 +54,5 @@ jobs:
           file: ./voltalis-bridge/Dockerfile.container
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/voltalis-bridge:${{ env.RELEASE_TAG }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/voltalis-bridge:${{ env.SHORT_SHA }}
             ${{ secrets.DOCKERHUB_USERNAME }}/voltalis-bridge:latest

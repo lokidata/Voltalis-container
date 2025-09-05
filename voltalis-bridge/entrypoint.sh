@@ -1,4 +1,3 @@
-@ -0,0 +1,13 @@
 #!/bin/sh
 # Script d'entrée pour Voltalis Bridge en mode container
 set -eu

@@ -1,24 +1,23 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:18.0.3
-FROM $BUILD_FROM
+# Dockerfile pour Voltalis Bridge en mode container
+FROM node:20-alpine
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+WORKDIR /app
 
-RUN apk add --no-cache \
-    nodejs \
-    npm \
-    git
+# Copie des fichiers nécessaires
+COPY package.json ./
+COPY yarn.lock ./
+COPY tsconfig.json ./
+COPY src/ ./src/
 
-RUN npm install -g corepack
-RUN corepack enable
+# Installation des dépendances et build
+RUN yarn install && yarn build
 
-COPY package.json /
-COPY yarn.lock /
-COPY tsconfig.json /
-COPY src/ /src/
+# Copie du script d'entrée
+COPY entrypoint.sh ./
+RUN chmod +x ./entrypoint.sh
 
-RUN cd / && yarn install && yarn build
+# Variables d'environnement attendues
+ENV NODE_ENV=production
+ENV DEBUG=voltalis-bridge*
 
-COPY run.sh /
-RUN chmod a+x /run.sh
-
-CMD [ "/run.sh" ]
+ENTRYPOINT ["./entrypoint.sh"]

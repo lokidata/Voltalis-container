@@ -1,15 +1,15 @@
-import "dotenv/config";
-import { Voltalis } from "./lib/voltalis";
-import { HomeAssistant } from "./lib/homeassistant";
-import { CONFIG } from "./config";
-import { registerSensors } from "./sensors";
-import { registerPollers } from "./pollers";
 import debug from "debug";
+import "dotenv/config";
+import { CONFIG } from "./config";
+import { HomeAssistant } from "./lib/homeassistant";
 import { Sensor } from "./lib/sensor";
+import { Voltalis } from "./lib/voltalis";
+import { registerPollers } from "./pollers";
+import { registerSensors } from "./sensors";
 
 const log = debug("voltalis-bridge:index");
 const voltalis = new Voltalis(CONFIG.username, CONFIG.password);
-const hass = new HomeAssistant(process.env.SUPERVISOR_TOKEN!);
+const hass = new HomeAssistant(CONFIG.haUrl, CONFIG.haToken);
 
 (async () => {
   await voltalis.login();

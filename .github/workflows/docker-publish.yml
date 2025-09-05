@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./voltalis-bridge
-          file: ./voltalis-bridge/Dockerfile.container
+          file: ./voltalis-bridge/Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/voltalis-bridge:${{ env.SHORT_SHA }}

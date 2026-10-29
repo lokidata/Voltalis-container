@@ -1,5 +1,6 @@
 import debug from "debug";
 import "dotenv/config";
+import { isConsumptionAppliance } from "./appliances";
 import { CONFIG } from "./config";
 import { HomeAssistant } from "./lib/homeassistant";
 import { Sensor } from "./lib/sensor";
@@ -27,7 +28,7 @@ const hass = new HomeAssistant(CONFIG.haUrl, CONFIG.haToken);
   pollers.appliances.subscribe({
     next: async ({ data }) => {
       for (const appliance of data) {
-        if (appliance.applianceType !== "HEATER") {
+        if (!isConsumptionAppliance(appliance.applianceType)) {
           continue;
         }
 

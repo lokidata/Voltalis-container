@@ -1,0 +1,13 @@
+services:
+  voltalis-bridge:
+    image: ghcr.io/lokidata/voltalis-container:latest
+    build: .
+    env_file: .env
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 64

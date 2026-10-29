@@ -8,34 +8,36 @@ This project is a fork of [zaosoula/ha-addons](https://github.com/zaosoula/ha-ad
 
 The bridge can be used to monitor consumption and enable/disable devices from Voltalis in your Home Assistant setup.
 
+[![CI](https://github.com/lokidata/Voltalis-container/actions/workflows/ci.yml/badge.svg)](https://github.com/lokidata/Voltalis-container/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/lokidata/Voltalis-container/actions/workflows/codeql.yml/badge.svg)](https://github.com/lokidata/Voltalis-container/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/lokidata/Voltalis-container/badge)](https://scorecard.dev/viewer/?uri=github.com/lokidata/Voltalis-container)
+
 ## Usage as a Container
 
-### Build the Docker image
+The image is published (signed) on GHCR: `ghcr.io/lokidata/voltalis-container`.
+
+Required environment variables (see `.env.example`):
+
+- `VOLTALIS_USERNAME` / `VOLTALIS_PASSWORD`: your Voltalis account
+- `HA_URL`: base URL of Home Assistant (e.g. `http://192.168.1.100:8123`, with or without `/api`)
+- `HA_TOKEN`: a Home Assistant long-lived access token
 
 ```sh
-docker build -f Dockerfile.container -t voltalis-bridge .
+cp .env.example .env   # then fill it in
+docker compose up -d
 ```
 
-### Run the container
+`docker-compose.yml` runs the container hardened (non-root, read-only, no capabilities). To build locally: `docker build -t voltalis-bridge .`
 
-You must provide the following environment variables:
-
-- `VOLTALIS_USERNAME`: Your Voltalis account username
-- `VOLTALIS_PASSWORD`: Your Voltalis account password
-- `HA_URL`: The base URL of your Home Assistant instance (e.g. `http://192.168.1.100:8123`)
-- `HA_TOKEN`: A Home Assistant long-lived access token (see your user profile in Home Assistant)
-
-Example:
+## Development
 
 ```sh
-docker run -d \
-  -e VOLTALIS_USERNAME=your_username \
-  -e VOLTALIS_PASSWORD=your_password \
-  -e HA_URL=http://192.168.1.100:8123 \
-  -e HA_TOKEN=your_long_lived_token \
-  --name voltalis-bridge \
-  voltalis-bridge
+nvm use && npm ci
+npm run dev      # needs a .env
+npm run check    # lint, format, typecheck, tests + coverage, build, audit
 ```
+
+Tests come first (Vitest). See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
 ## Notes
 
@@ -47,9 +49,9 @@ docker run -d \
 
 ## Acknowledgments
 
-* [zaosoula/ha-addons](https://github.com/zaosoula/ha-addons) (original project)
-* [Ring-bridge by Helmut Hoffer von Ankershoffen](https://github.com/helmut-hoffer-von-ankershoffen/hassio-ring-bridge)
-* [Hassion-addons by Kris De Winter](https://github.com/kdw2060/hassio-addons)
-* [Voltalis-cli by Ivo Bellin Salarin](https://github.com/nilleb/voltalis-cli)
+- [zaosoula/ha-addons](https://github.com/zaosoula/ha-addons) (original project)
+- [Ring-bridge by Helmut Hoffer von Ankershoffen](https://github.com/helmut-hoffer-von-ankershoffen/hassio-ring-bridge)
+- [Hassion-addons by Kris De Winter](https://github.com/kdw2060/hassio-addons)
+- [Voltalis-cli by Ivo Bellin Salarin](https://github.com/nilleb/voltalis-cli)
 
 <p align="right">(<a href="#top">back to top</a>)</p>

@@ -12,6 +12,8 @@ COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY entrypoint.sh ./
+# npm/yarn are not needed at runtime and ship their own vulnerable bundled deps
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx /opt/yarn*
 # shortcut: no HEALTHCHECK (no port; a crash exits the process and restart: handles it), add a heartbeat file if hangs appear
 USER node
 ENTRYPOINT ["./entrypoint.sh"]

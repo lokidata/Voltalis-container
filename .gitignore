@@ -106,3 +106,10 @@ dist
 .tern-port
 
 */cookies.json
+.env
+.env.*
+!.env.example
+coverage
+dist
+node_modules
+.claude/settings.local.json

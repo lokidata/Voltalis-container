@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated or third-party files, ignored by git anyway"
+paths = ['''node_modules/''', '''coverage/''', '''dist/''']

@@ -14,6 +14,9 @@ COPY --from=build /app/dist ./dist
 COPY entrypoint.sh ./
 # npm/yarn are not needed at runtime and ship their own vulnerable bundled deps
 RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx /opt/yarn*
+# Fixed packages that the pinned base does not have yet (openssl, zlib); Dependabot moves the base forward.
+USER root
+RUN apk upgrade --no-cache libcrypto3 libssl3 zlib
 # shortcut: no HEALTHCHECK (no port; a crash exits the process and restart: handles it), add a heartbeat file if hangs appear
 USER node
 ENTRYPOINT ["./entrypoint.sh"]

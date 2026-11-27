@@ -19,13 +19,15 @@ function cron(expr: string) {
   });
 }
 
-// Liveness for the container HEALTHCHECK: rewritten on every successful fetch.
-const HEARTBEAT_FILE = "/tmp/heartbeat";
+// Liveness for the container HEALTHCHECK: the file named by HEARTBEAT_FILE (set in the Dockerfile,
+// in a private directory made by entrypoint.sh) is rewritten on every successful fetch. Unset: no-op.
 const beat = () => {
+  const file = process.env.HEARTBEAT_FILE;
+  if (!file) return;
   try {
-    writeFileSync(HEARTBEAT_FILE, String(Date.now()));
+    writeFileSync(file, String(Date.now()));
   } catch {
-    // read-only or missing /tmp (local dev): the healthcheck only matters in the container
+    // unwritable path: the healthcheck will report it, the bridge keeps running
   }
 };
 

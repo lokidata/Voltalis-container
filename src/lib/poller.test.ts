@@ -32,6 +32,7 @@ describe("poller", () => {
   });
 
   it("writes the heartbeat file on every successful fetch, and survives a write error", () => {
+    vi.stubEnv("HEARTBEAT_FILE", "/run/hb");
     schedule.mockReturnValue({ start: vi.fn(), stop: vi.fn() });
     writeFileSync.mockImplementationOnce(() => {
       throw new Error("EROFS");
@@ -40,6 +41,10 @@ describe("poller", () => {
     poller("* * * * *", () => of("a", "b")).subscribe((v) => values.push(v));
     expect(values).toEqual(["a", "b"]);
     expect(writeFileSync).toHaveBeenCalledTimes(2);
-    expect(writeFileSync).toHaveBeenCalledWith("/tmp/heartbeat", expect.any(String));
+    expect(writeFileSync).toHaveBeenCalledWith("/run/hb", expect.any(String));
+    vi.unstubAllEnvs();
+    writeFileSync.mockClear();
+    poller("* * * * *", () => of("c")).subscribe();
+    expect(writeFileSync).not.toHaveBeenCalled();
   });
 });

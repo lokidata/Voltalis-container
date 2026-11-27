@@ -9,5 +9,7 @@ for v in VOLTALIS_USERNAME VOLTALIS_PASSWORD HA_URL HA_TOKEN; do
   fi
 done
 
+mkdir -p -m 700 "$(dirname "${HEARTBEAT_FILE:-/tmp/voltalis/heartbeat}")"
+
 echo "Démarrage du service Voltalis Bridge..."
 exec node dist/index.js

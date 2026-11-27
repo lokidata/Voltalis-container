@@ -2,6 +2,8 @@ import { of } from "rxjs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const schedule = vi.hoisted(() => vi.fn());
+const writeFileSync = vi.hoisted(() => vi.fn());
+vi.mock("node:fs", () => ({ writeFileSync }));
 vi.mock("node-cron", () => ({ schedule }));
 
 import { poller } from "./poller";
@@ -27,5 +29,17 @@ describe("poller", () => {
 
     sub.unsubscribe();
     expect(stop).toHaveBeenCalled();
+  });
+
+  it("writes the heartbeat file on every successful fetch, and survives a write error", () => {
+    schedule.mockReturnValue({ start: vi.fn(), stop: vi.fn() });
+    writeFileSync.mockImplementationOnce(() => {
+      throw new Error("EROFS");
+    });
+    const values: string[] = [];
+    poller("* * * * *", () => of("a", "b")).subscribe((v) => values.push(v));
+    expect(values).toEqual(["a", "b"]);
+    expect(writeFileSync).toHaveBeenCalledTimes(2);
+    expect(writeFileSync).toHaveBeenCalledWith("/tmp/heartbeat", expect.any(String));
   });
 });
